@@ -8,12 +8,25 @@ import (
     "time"
 )
 
+var StubServerRunning bool = false
+
+func init() {
+    Testing = true
+}
+
 /***
  * Setup
  ******************************/
 func Test(t *testing.T) {
     TestingT(t)
 }
+
+/***
+ * ResultSet
+ ******************************/
+type MainSuite struct{}
+
+var _ = Suite(&MainSuite{})
 
 /***
  * ResultSet
@@ -33,12 +46,12 @@ var _ = Suite(&ConnectorSuite{})
  * Helpers
  ******************************/
 func stubServer() {
-    if stubServerRunning {
+    if StubServerRunning {
         return
     }
 
-    stubServerRunning = true
-    defer func() { stubServerRunning = false }()
+    StubServerRunning = true
+    defer func() { StubServerRunning = false }()
 
     // Starting a stub server on :9876 to handle incoming requests
     // for example.
@@ -94,5 +107,13 @@ func newRT(i int, t float64, c int) ResultTransport {
         Index: i,
         Took:  t,
         Code:  c,
+    }
+}
+
+func newConf() *Configurator {
+    return &Configurator{
+        Path:     "http://localhost:9876",
+        NumConns: 5,
+        Rate:     5,
     }
 }

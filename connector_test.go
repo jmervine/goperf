@@ -5,8 +5,6 @@ import (
     . "github.com/jmervine/check"
 )
 
-var stubServerRunning bool = false
-
 /***
  * Tests
  *

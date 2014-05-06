@@ -11,6 +11,7 @@ import (
     "time"
 )
 
+// Main Connector struct.
 type Connector struct {
     waiter *sync.WaitGroup
     tranny chan ResultTransport
@@ -22,6 +23,7 @@ type Connector struct {
     Results  *ResultSet
 }
 
+// Generate a new Connector with all the necessaries.
 func New(path string, numconns int) Connector {
     connector := Connector{}
     connector.Path = path
@@ -37,6 +39,7 @@ func New(path string, numconns int) Connector {
     return connector
 }
 
+// Run Connector, selecting Parallel or Series based on Rate.
 func (this *Connector) Run() {
     if this.Rate != 0 {
         this.Parallel()
@@ -45,6 +48,7 @@ func (this *Connector) Run() {
     }
 }
 
+// Run Connector serialized.
 func (this *Connector) Series() {
     start := time.Now()
 
@@ -57,6 +61,7 @@ func (this *Connector) Series() {
     }
 }
 
+// Run Connector parallelized based on Rate.
 func (this *Connector) Parallel() {
     start := time.Now()
 
@@ -83,6 +88,7 @@ func (this *Connector) Parallel() {
     this.waiter.Wait()
 }
 
+// A single connection.
 func (this *Connector) Connect() ResultTransport {
     start := time.Now()
     resp, err := http.Get(this.Path)
@@ -122,7 +128,6 @@ func (this *Connector) Connect() ResultTransport {
 /****
  * Private methods
  *****************************************************/
-
 func (this *Connector) collect() {
     tranny := <-this.tranny
     this.Results.Add(tranny)
