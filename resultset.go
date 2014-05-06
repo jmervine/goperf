@@ -82,7 +82,7 @@ func (this *ResultSet) Add(result ResultTransport) {
     }
 }
 
-// FFinalize results, generating min, max, avg med and percentiles.
+// Finalize results, generating min, max, avg med and percentiles.
 func (this *ResultSet) Finalize() {
     this.Replies = len(this.Took)
     this.min()
@@ -149,7 +149,6 @@ func (this *ResultSet) CalculatePct(pct int) float64 {
 /**
  * Private Methods
  ******************************************/
-
 func (this *ResultSet) min() {
     slice := this.copyTook()
 

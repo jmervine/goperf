@@ -45,11 +45,22 @@ package perf
 
 
 
+VARIABLES
+
+var Testing bool = false
+
+var Version = "v0.0.2"
+
+
 FUNCTIONS
 
 
 func Display(r *ResultSet)
+    Display formatted results.
 
+    Example:
+    results := QuickRun("http://localhost", 100, 10)
+    Display(results)
 
 TYPES
 
@@ -70,6 +81,7 @@ type Connector struct {
     Results  *ResultSet
     // contains filtered or unexported fields
 }
+    Main Connector struct.
 
     Example:
     go stubServer()
@@ -107,19 +119,24 @@ type Connector struct {
 
 
 func New(path string, numconns int) Connector
+    Generate a new Connector with all the necessaries.
 
 
 
 func (this *Connector) Connect() ResultTransport
+    A single connection.
 
 
 func (this *Connector) Parallel()
+    Run Connector parallelized based on Rate.
 
 
 func (this *Connector) Run()
+    Run Connector, selecting Parallel or Series based on Rate.
 
 
 func (this *Connector) Series()
+    Run Connector serialized.
 
 
 type ResultSet struct {
@@ -194,26 +211,62 @@ type ResultSet struct {
 func Parallel(config *Configurator) *ResultSet
     Force Parallel run using a Configurator.
 
+    Example:
+    config := &Configurator{
+        Path:     "http://localhost",
+        NumConns: 100,
+        Rate:     10,
+        Verbose:  true,
+    }
+    
+    results := Parallel(config)
+    Display(results)
 
 
 func QuickRun(path string, numconns, rate int) *ResultSet
     Quickly Run with limited options.
 
+    Example:
+    results := QuickRun("http://localhost", 100, 10)
+    Display(results)
 
 
 func Series(config *Configurator) *ResultSet
     Force Series run using a Configurator.
 
+    Example:
+    config := &Configurator{
+        Path:     "http://localhost",
+        NumConns: 100,
+        Rate:     10,
+        Verbose:  true,
+    }
+    
+    results := Parallel(config)
+    Display(results)
 
 
 func Siege(path string, numconns int) *ResultSet
     Force Parallel run, with limited options.
 
+    Example:
+    results := Siege("http://localhost", 100)
+    Display(results)
 
 
 func Start(config *Configurator) *ResultSet
     Setup a new run using a Configurator
 
+    Example:
+    config := &Configurator{
+        Path:     "http://localhost",
+        NumConns: 100,
+        Rate:     10,
+        Verbose:  true,
+    }
+    
+    results := Start(config)
+    Display(results)
 
 
 func (this *ResultSet) Add(result ResultTransport)
@@ -225,7 +278,7 @@ func (this *ResultSet) CalculatePct(pct int) float64
 
 
 func (this *ResultSet) Finalize()
-    FFinalize results, generating min, max, avg med and percentiles.
+    Finalize results, generating min, max, avg med and percentiles.
 
 
 type ResultTransport struct {
@@ -243,6 +296,14 @@ type ResultTransport struct {
 func Connect(path string, verbose bool) *ResultTransport
     A singled connection, returning a simplified result struct.
 
+    Example:
+    go stubServer()
+    
+    results := Connect("http://localhost:9876", false)
+    fmt.Printf("Status Code: %v\n", results.Code)
+    
+    // Output:
+    // Status Code: 200
 
 
 
