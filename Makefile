@@ -30,14 +30,8 @@ docs: format .PHONY
 	@#                                         ^ add a little spacing for readability
 
 readme: test
-	# generating readme (quietly)
-	@cat .header.readme > README.md
-	@godoc -ex=true . >> README.md
-	@cat .footer.readme >> README.md
-	@# clean up whitespace
-	@sed -i -e 's/\t/    /g' README.md
-	@# add a little spacing for readability
-	@sed -i -e 's/func /\nfunc /g' README.md
+	# generating readme
+	godoc -ex -v -templates "$(PWD)/docs" . > README.md
 
 format: .PHONY
 	# Gofmt Source

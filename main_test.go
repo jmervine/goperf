@@ -79,35 +79,11 @@ func (suite *MainSuite) TestConnect(test *C) {
     test.Assert(r.Code, Equals, 200)
 }
 
-func (suite *MainSuite) TestHeavyLoad(test *C) {
-    go stubServer()
-
-    rs := Siege("http://localhost:9876", 10000)
-    test.Assert(rs.Replies, Equals, 10000)
-
-    qr := QuickRun("http://localhost:9876", 50000, 5000)
-    test.Assert(qr.Replies, Equals, 50000)
-}
-
 /***
  * Examples
  ******************************/
-func ExampleDisplay() {
-    results := QuickRun("http://localhost", 100, 10)
-    Display(results)
-}
-
-func ExampleQuickRun() {
-    results := QuickRun("http://localhost", 100, 10)
-    Display(results)
-}
-
-func ExampleSiege() {
-    results := Siege("http://localhost", 100)
-    Display(results)
-}
-
-func ExampleStart() {
+func Example() {
+    // Start()
     config := &Configurator{
         Path:     "http://localhost",
         NumConns: 100,
@@ -116,6 +92,15 @@ func ExampleStart() {
     }
 
     results := Start(config)
+    Display(results)
+
+    // QuickRun()
+    quick := QuickRun("http://localhost", 100, 10)
+    Display(quick)
+}
+
+func ExampleSiege() {
+    results := Siege("http://localhost", 100)
     Display(results)
 }
 

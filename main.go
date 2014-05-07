@@ -1,10 +1,18 @@
 package perf
 
+// Simple HTTPerf clone for performance testing web applications written in Go.
+//
+// > NOTE: This is the inital commit and shouldn't be considered ready for anyone. That said, it should
+// > work as outlined below, at least on Linux based systems.
+
 import (
     "fmt"
 )
 
+// Package version.
 var Version = "v0.0.2"
+
+// Flag for disabling certain messaging during test.
 var Testing bool = false
 
 type Configurator struct {
@@ -58,7 +66,7 @@ func Series(config *Configurator) *ResultSet {
 
 // A singled connection, returning a simplified result struct.
 func Connect(path string, verbose bool) *ResultTransport {
-    conn := New(path, 0)
+    conn := Connector{}.New(path, 0)
     conn.Verbose = verbose
 
     result := conn.Connect()
@@ -99,7 +107,7 @@ func Display(r *ResultSet) {
 func setup(config *Configurator) *Connector {
     validate(config)
     header(config)
-    conn := New(config.Path, config.NumConns)
+    conn := Connector{}.New(config.Path, config.NumConns)
     conn.Rate = config.Rate
     conn.Verbose = config.Verbose
     return &conn

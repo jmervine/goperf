@@ -1,0 +1,137 @@
+{{with .PAst}}{{node $ .}}{{end}}{{/*
+
+---------------------------------------
+
+*/}}{{with .PDoc}}{{if not $.IsMain}}
+# goperf
+---
+
+Simple HTTPerf clone for performance testing web applications written in Go.
+
+> NOTE: This is the inital commit and shouldn't be considered ready for anyone. That said, it should
+> work as outlined below, at least on Linux based systems.
+
+## Install
+
+```
+# manual
+$ git clone https://github.com/jmervine/goperf.git $GOPATH/src/github.com/jmervine/goperf
+$ cd $GOPATH/src/github.com/jmervine/goperf
+$ make build/exe
+$ cp pkg/goperf-VERSION $BIN/goperf
+
+# $BIN is a directory of your choosing in your $PATH
+```
+
+## Usage
+
+```
+$ ./goperf-v0.0.1 -help
+Usage of ./goperf-v0.0.1:
+  -n=0: Total number of connections.
+  -r=0: Connection rate (per second).
+  -u="": Target URL.
+  -v=false: Print verbose messaging.
+  -version=false: Show version infomration.
+```
+
+## API Usage
+
+```go
+import "github.com/jmervine/goperf"
+```{{else}}
+{{end}}{{comment_text .Doc "> " ""}}
+{{example_text $ "" "##### "}}{{/*
+
+---------------------------------------
+
+*/}}{{with .Consts}}
+### Constants
+
+{{range .}}```go
+{{node $ .Decl}}
+```
+
+{{comment_text .Doc "> " ""}}
+{{end}}{{end}}{{/*
+
+---------------------------------------
+
+*/}}{{with .Vars}}
+### Variables
+
+{{range .}}```go
+{{node $ .Decl}}
+```
+
+{{comment_text .Doc "> " ""}}
+{{end}}{{end}}{{/*
+
+---------------------------------------
+
+*/}}{{with .Types}}
+### Types
+
+{{range .}}#### {{.Name}}
+
+```go
+{{$tname := .Name}}{{node $ .Decl}}
+```
+{{range .Consts}}```go
+{{node $ .Decl}}
+```
+{{comment_text .Doc "> " ""}}
+{{end}}
+{{range .Vars}}{{node $ .Decl}}
+{{comment_text .Doc "> " ""}}
+{{end}}
+{{example_text $ .Name "##### "}}
+{{range .Funcs}}#### {{.Name}}
+
+```go
+{{node $ .Decl}}
+```
+{{comment_text .Doc "> " ""}}
+{{example_text $ .Name  "##### "}}
+{{end}}{{range .Methods}}{{/* methods */}}#### {{.Name}}
+
+```go
+{{node $ .Decl}}
+```
+{{comment_text .Doc "> " ""}}
+{{$name := printf "%s_%s" $tname .Name}}
+{{if example_text $ $name ""}}
+{{example_text $ $name "##### "}}
+{{end}}
+{{end}}{{end}}{{end}}{{/*
+
+---------------------------------------
+
+*/}}{{with .Funcs}}
+{{range .}}#### {{.Name}}
+
+```go
+{{node $ .Decl}}
+```
+{{comment_text .Doc "> " ""}}
+{{example_text $ .Name "##### "}}
+{{end}}{{end}}{{/*
+
+---------------------------------------
+
+*/}}{{with $.Notes}}
+{{range $marker, $content := .}}
+{{noteTitle $marker}}s
+
+{{range $content}}{{comment_text . "> " ""}}
+{{end}}{{end}}{{end}}{{end}}{{/*
+
+---------------------------------------
+
+*/}}{{with .Dirs}}
+## Subdirectories
+{{if $.DirFlat}}{{range .List}}{{if .HasPkg}}
+	{{.Path}}{{end}}{{end}}
+{{else}}{{range .List}}
+	{{repeat `. ` .Depth}}{{.Name}}{{end}}
+{{end}}{{end}}

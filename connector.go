@@ -24,8 +24,8 @@ type Connector struct {
 }
 
 // Generate a new Connector with all the necessaries.
-func New(path string, numconns int) Connector {
-    connector := Connector{}
+func (connector Connector) New(path string, numconns int) Connector {
+    //connector := Connector{}
     connector.Path = path
     connector.NumConns = numconns
     connector.waiter = &sync.WaitGroup{}

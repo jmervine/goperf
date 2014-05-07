@@ -12,7 +12,7 @@ import (
  * and helper method definitions.
  ******************************/
 func (suite *ConnectorSuite) TestNew(test *C) {
-    c := New("http://localhost:9876", 10)
+    c := Connector{}.New("http://localhost:9876", 10)
 
     test.Assert(c.Path, Equals, "http://localhost:9876")
     test.Assert(c.NumConns, Equals, 10)
@@ -24,7 +24,7 @@ func (suite *ConnectorSuite) TestNew(test *C) {
 func (suite *ConnectorSuite) TestSeries(test *C) {
     go stubServer()
 
-    c := New("http://localhost:9876", 10)
+    c := Connector{}.New("http://localhost:9876", 10)
     c.Series()
 
     for i := 0; i < 10; i++ {
@@ -37,7 +37,7 @@ func (suite *ConnectorSuite) TestSeries(test *C) {
 func (suite *ConnectorSuite) TestParallel(test *C) {
     go stubServer()
 
-    c := New("http://localhost:9876", 10)
+    c := Connector{}.New("http://localhost:9876", 10)
     c.Parallel()
 
     for i := 0; i < 10; i++ {
@@ -51,7 +51,7 @@ func (suite *ConnectorSuite) TestParallel(test *C) {
 func (suite *ConnectorSuite) TestRun(test *C) {
     go stubServer()
 
-    c := New("http://localhost:9876", 10)
+    c := Connector{}.New("http://localhost:9876", 10)
     c.Run()
 
     for i := 0; i < 10; i++ {
@@ -81,7 +81,7 @@ func (suite *ConnectorSuite) TestRun(test *C) {
 func (suite *ConnectorSuite) TestConnect(test *C) {
     go stubServer()
 
-    c := New("http://localhost:9876", 10)
+    c := Connector{}.New("http://localhost:9876", 10)
     r := c.Connect()
 
     for i := 0; i < 10; i++ {
@@ -93,10 +93,10 @@ func (suite *ConnectorSuite) TestConnect(test *C) {
 /***
  * Examples
  ******************************/
-func ExampleConnector() {
+func ExampleConnector_New() {
     go stubServer()
 
-    c := New("http://localhost:9876", 10)
+    c := Connector{}.New("http://localhost:9876", 10)
 
     /**
      * Note on Rate:
@@ -114,16 +114,4 @@ func ExampleConnector() {
     for i, code := range c.Results.Code {
         fmt.Printf("Code[%d] = %d\n", i, code)
     }
-
-    // Output:
-    // Code[0] = 200
-    // Code[1] = 200
-    // Code[2] = 200
-    // Code[3] = 200
-    // Code[4] = 200
-    // Code[5] = 200
-    // Code[6] = 200
-    // Code[7] = 200
-    // Code[8] = 200
-    // Code[9] = 200
 }
