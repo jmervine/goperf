@@ -7,8 +7,7 @@ travis: get .PHONY
 	# Run Test Suite
 	go test -test.v=true -check.v
 
-#test: format get .PHONY
-test: format .PHONY
+test: format get .PHONY
 	# Run Test Suite
 	-go test -test.v=true -check.v
 
