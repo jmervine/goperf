@@ -1,4 +1,4 @@
-package perf
+package connector
 
 import (
     "fmt"
@@ -9,29 +9,30 @@ import (
     "strconv"
     "sync"
     "time"
+    "github.com/jmervine/goperf/results"
 )
 
-// Main Connector struct.
+// Connector contains connector data.
 type Connector struct {
     waiter *sync.WaitGroup
-    tranny chan ResultTransport
+    tranny chan results.Result
 
     Path     string
     NumConns int
     Rate     int
     Verbose  bool
-    Results  *ResultSet
+    Results  *results.Results
 }
 
-// Generate a new Connector with all the necessaries.
+// New generates a new Connector with all the necessaries.
 func (connector Connector) New(path string, numconns int) Connector {
     //connector := Connector{}
     connector.Path = path
     connector.NumConns = numconns
     connector.waiter = &sync.WaitGroup{}
-    connector.tranny = make(chan ResultTransport)
+    connector.tranny = make(chan results.Result)
 
-    connector.Results = &ResultSet{
+    connector.Results = &results.Results{
         Took: make([]float64, numconns),
         Code: make([]int, numconns),
     }
@@ -39,59 +40,59 @@ func (connector Connector) New(path string, numconns int) Connector {
     return connector
 }
 
-// Run Connector, selecting Parallel or Series based on Rate.
-func (this *Connector) Run() {
-    if this.Rate != 0 {
-        this.Parallel()
+// Run runs the Connector, selecting Parallel or Series based on Rate.
+func (conn *Connector) Run() {
+    if conn.Rate != 0 {
+        conn.Parallel()
     } else {
-        this.Series()
+        conn.Series()
     }
 }
 
-// Run Connector serialized.
-func (this *Connector) Series() {
+// Series runs the Connector serialized.
+func (conn *Connector) Series() {
     start := time.Now()
 
-    defer this.finalize(start)
+    defer conn.finalize(start)
 
-    for i := 0; i < this.NumConns; i++ {
-        result := this.Connect()
+    for i := 0; i < conn.NumConns; i++ {
+        result := conn.Connect()
         result.Index = i
-        this.Results.Add(result)
+        conn.Results.Add(result)
     }
 }
 
-// Run Connector parallelized based on Rate.
-func (this *Connector) Parallel() {
+// Parallel runs the Connector parallelized.
+func (conn *Connector) Parallel() {
     start := time.Now()
 
-    defer this.finalize(start)
+    defer conn.finalize(start)
 
-    for i := 0; i < this.NumConns; i++ {
+    for i := 0; i < conn.NumConns; i++ {
 
-        if this.Rate > 0 && i != 0 {
-            time.Sleep(time.Second / time.Duration(this.Rate))
+        if conn.Rate > 0 && i != 0 {
+            time.Sleep(time.Second / time.Duration(conn.Rate))
         }
 
-        this.waiter.Add(1)
+        conn.waiter.Add(1)
         go func(i int) {
-            result := this.Connect()
+            result := conn.Connect()
             result.Index = i
-            this.tranny <- result
-            this.waiter.Done()
+            conn.tranny <- result
+            conn.waiter.Done()
         }(i)
 
-        this.waiter.Add(1)
-        go this.collect()
+        conn.waiter.Add(1)
+        go conn.collect()
     }
 
-    this.waiter.Wait()
+    conn.waiter.Wait()
 }
 
-// A single connection.
-func (this *Connector) Connect() ResultTransport {
+// Connect makes a single connection.
+func (conn *Connector) Connect() results.Result {
     start := time.Now()
-    resp, err := http.Get(this.Path)
+    resp, err := http.Get(conn.Path)
     took := float64(time.Since(start) / time.Millisecond)
 
     var code int
@@ -107,7 +108,7 @@ func (this *Connector) Connect() ResultTransport {
         }
     }
 
-    if this.Verbose {
+    if conn.Verbose {
         if err != nil {
             fmt.Printf(" > Responded with error: %q\n",
                 err.(*url.Error).Err.(*net.OpError).Error())
@@ -116,7 +117,7 @@ func (this *Connector) Connect() ResultTransport {
         }
     }
 
-    return ResultTransport{Took: took,
+    return results.Result{Took: took,
         Code:          code,
         Error:         err,
         TotalLength:   tlen,
@@ -128,24 +129,25 @@ func (this *Connector) Connect() ResultTransport {
 /****
  * Private methods
  *****************************************************/
-func (this *Connector) collect() {
-    tranny := <-this.tranny
-    this.Results.Add(tranny)
-    this.waiter.Done()
+
+func (conn *Connector) collect() {
+    tranny := <-conn.tranny
+    conn.Results.Add(tranny)
+    conn.waiter.Done()
 }
 
-func (this *Connector) finalize(start time.Time) {
-    if this.Verbose {
+func (conn *Connector) finalize(start time.Time) {
+    if conn.Verbose {
         fmt.Println(" > finalizing...\n")
     }
 
     // Some results data can only be populated if run via Connector.
-    this.Results.Requested = this.NumConns
-    this.Results.TotalTime = trimFloat(float64(time.Since(start))/float64(time.Second), 3)
-    this.Results.ConnPerSec = trimFloat(float64(this.NumConns)/this.Results.TotalTime, 3)
+    conn.Results.Requested = conn.NumConns
+    conn.Results.TotalTime = trimFloat(float64(time.Since(start))/float64(time.Second), 3)
+    conn.Results.ConnPerSec = trimFloat(float64(conn.NumConns)/conn.Results.TotalTime, 3)
 
     // Finalize results.
-    this.Results.Finalize()
+    conn.Results.Finalize()
 }
 
 func trimFloat(float float64, points int) float64 {

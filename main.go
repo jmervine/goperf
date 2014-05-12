@@ -7,6 +7,8 @@ package perf
 
 import (
     "fmt"
+    "github.com/jmervine/goperf/connector"
+    "github.com/jmervine/goperf/results"
 )
 
 // Package version.
@@ -23,7 +25,7 @@ type Configurator struct {
 }
 
 // Quickly Run with limited options.
-func QuickRun(path string, numconns, rate int) *ResultSet {
+func QuickRun(path string, numconns, rate int) *results.Results {
     config := &Configurator{
         Path:     path,
         NumConns: numconns,
@@ -34,7 +36,7 @@ func QuickRun(path string, numconns, rate int) *ResultSet {
 }
 
 // Force Parallel run, with limited options.
-func Siege(path string, numconns int) *ResultSet {
+func Siege(path string, numconns int) *results.Results {
     config := &Configurator{
         Path:     path,
         NumConns: numconns,
@@ -44,29 +46,29 @@ func Siege(path string, numconns int) *ResultSet {
 }
 
 // Setup a new run using a Configurator
-func Start(config *Configurator) *ResultSet {
+func Start(config *Configurator) *results.Results {
     conn := setup(config)
     conn.Run()
     return conn.Results
 }
 
 // Force Parallel run using a Configurator.
-func Parallel(config *Configurator) *ResultSet {
+func Parallel(config *Configurator) *results.Results {
     conn := setup(config)
     conn.Parallel()
     return conn.Results
 }
 
 // Force Series run using a Configurator.
-func Series(config *Configurator) *ResultSet {
+func Series(config *Configurator) *results.Results {
     conn := setup(config)
     conn.Series()
     return conn.Results
 }
 
 // A singled connection, returning a simplified result struct.
-func Connect(path string, verbose bool) *ResultTransport {
-    conn := Connector{}.New(path, 0)
+func Connect(path string, verbose bool) *results.Result {
+    conn := connector.Connector{}.New(path, 0)
     conn.Verbose = verbose
 
     result := conn.Connect()
@@ -74,7 +76,7 @@ func Connect(path string, verbose bool) *ResultTransport {
 }
 
 // Display formatted results.
-func Display(r *ResultSet) {
+func Display(r *results.Results) {
     fmt.Printf("Total: requested %d replies %d test-duration %vs\n",
         r.Requested, len(r.Took), r.TotalTime)
     fmt.Println()
@@ -104,10 +106,10 @@ func Display(r *ResultSet) {
  *****************************************************/
 
 // Setup Connector via Configurator
-func setup(config *Configurator) *Connector {
+func setup(config *Configurator) *connector.Connector {
     validate(config)
     header(config)
-    conn := Connector{}.New(config.Path, config.NumConns)
+    conn := connector.Connector{}.New(config.Path, config.NumConns)
     conn.Rate = config.Rate
     conn.Verbose = config.Verbose
     return &conn

@@ -1,15 +1,16 @@
-CHECK_TARGET=$(GOPATH)/src/github.com/jmervine/check
 VERSION=$(shell cat VERSION)
 BUILDBOX=$(shell uname -a)
 
 # tests without -tabs for go tip
 travis: get .PHONY
 	# Run Test Suite
-	go test -test.v=true -check.v
+	go test -test.v=true
 
 test: format get .PHONY
 	# Run Test Suite
-	-go test -test.v=true -check.v
+	-go test -test.v=true
+	-cd results; go test -test.v=true
+	-cd connector; go test -test.v=true
 
 build: test .PHONY
 	cd bin; go build -o '../pkg/goperf-$(VERSION)' -v -a -race
@@ -22,8 +23,7 @@ build: test .PHONY
 
 get:
 	# Go Get Deps
-	@test -d $(CHECK_TARGET) || \
-		git clone --branch v1 https://github.com/jmervine/check.git $(CHECK_TARGET)
+	go get github.com/jmervine/GoT
 
 docs: format .PHONY
 	@godoc -ex=true | sed -e 's/func /\nfunc /g' | less

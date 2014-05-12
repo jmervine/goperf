@@ -2,86 +2,90 @@ package perf
 
 import (
     "fmt"
-    . "github.com/jmervine/check"
+    . "github.com/jmervine/GoT"
     "io/ioutil"
+    "net/http"
     "strings"
+    "testing"
+    "time"
 )
 
-/***
- * Tests
- *
- * See setup_test.go for Test initialization
- * and helper method definitions.
- ******************************/
-func (suite *MainSuite) TestVersion(test *C) {
+var StubServerRunning bool = false
+
+func init() {
+    Testing = true
+}
+
+func TestVersion(T *testing.T) {
     content, err := ioutil.ReadFile("VERSION")
     if err != nil {
         panic(err)
     }
 
-    test.Assert(Version, Equals, strings.TrimSpace(string(content)))
+    Go(T).AssertEqual(Version, strings.TrimSpace(string(content)))
 }
 
-func (suite *MainSuite) TestQuickRun(test *C) {
+func TestQuickRun(T *testing.T) {
     go stubServer()
 
     rs := QuickRun("http://localhost:9876", 5, 5)
 
-    test.Assert(rs.Took, HasLen, 5)
-    test.Assert(rs.Code, HasLen, 5)
-    test.Assert(rs.Errors, HasLen, 0)
+    Go(T).AssertLength(rs.Took, 5)
+    Go(T).AssertLength(rs.Code, 5)
+    Go(T).AssertLength(rs.Errors, 0)
 }
 
-func (suite *MainSuite) TestSiege(test *C) {
+func TestSiege(T *testing.T) {
     go stubServer()
 
     rs := Siege("http://localhost:9876", 5)
-    test.Assert(rs.Took, HasLen, 5)
-    test.Assert(rs.Code, HasLen, 5)
-    test.Assert(rs.Errors, HasLen, 0)
+    Go(T).AssertLength(rs.Took, 5)
+    Go(T).AssertLength(rs.Code, 5)
+    Go(T).AssertLength(rs.Errors, 0)
 }
 
-func (suite *MainSuite) TestStart(test *C) {
+func TestStart(T *testing.T) {
     go stubServer()
 
     rs := Start(newConf())
 
-    test.Assert(rs.Took, HasLen, 5)
-    test.Assert(rs.Code, HasLen, 5)
-    test.Assert(rs.Errors, HasLen, 0)
+    Go(T).AssertLength(rs.Took, 5)
+    Go(T).AssertLength(rs.Code, 5)
+    Go(T).AssertLength(rs.Errors, 0)
 }
 
-func (suite *MainSuite) TestParallel(test *C) {
+func TestParallel(T *testing.T) {
     go stubServer()
 
     rs := Parallel(newConf())
 
-    test.Assert(rs.Took, HasLen, 5)
-    test.Assert(rs.Code, HasLen, 5)
-    test.Assert(rs.Errors, HasLen, 0)
+    Go(T).AssertLength(rs.Took, 5)
+    Go(T).AssertLength(rs.Code, 5)
+    Go(T).AssertLength(rs.Errors, 0)
 }
 
-func (suite *MainSuite) TestSeries(test *C) {
+func TestSeries(T *testing.T) {
     go stubServer()
 
     rs := Series(newConf())
 
-    test.Assert(rs.Took, HasLen, 5)
-    test.Assert(rs.Code, HasLen, 5)
-    test.Assert(rs.Errors, HasLen, 0)
+    Go(T).AssertLength(rs.Took, 5)
+    Go(T).AssertLength(rs.Code, 5)
+    Go(T).AssertLength(rs.Errors, 0)
 }
 
-func (suite *MainSuite) TestConnect(test *C) {
+func TestConnect(T *testing.T) {
     go stubServer()
 
     r := Connect("http://localhost:9876", false)
 
-    test.Assert(r.Code, Equals, 200)
+    Go(T).AssertEqual(r.Code, 200)
 }
 
 /***
  * Examples
  ******************************/
+
 func Example() {
     // Start()
     config := &Configurator{
@@ -136,4 +140,32 @@ func ExampleConnect() {
 
     // Output:
     // Status Code: 200
+}
+
+/***
+ * Helpers
+ ******************************/
+func stubServer() {
+    if StubServerRunning {
+        return
+    }
+
+    StubServerRunning = true
+    defer func() { StubServerRunning = false }()
+
+    // Starting a stub server on :9876 to handle incoming requests
+    // for example.
+    http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+        time.Sleep(5 * time.Millisecond)
+        fmt.Fprintln(w, "hello web")
+    })
+    http.ListenAndServe(":9876", nil)
+}
+
+func newConf() *Configurator {
+    return &Configurator{
+        Path:     "http://localhost:9876",
+        NumConns: 5,
+        Rate:     5,
+    }
 }

@@ -1,4 +1,4 @@
-package perf
+package results
 
 import (
     "math"
@@ -8,8 +8,8 @@ import (
     "strings"
 )
 
-// Performance test results.
-type ResultSet struct {
+// Results is a container for the performance test results.
+type Results struct {
     Requested  int
     Replies    int
     TotalTime  float64
@@ -50,8 +50,8 @@ type ResultSet struct {
  * Public Methods
  ******************************************/
 
-// Performance test result transporter.
-type ResultTransport struct {
+// Result is the performance test result transporter.
+type Result struct {
     Index, Code   int
     Took          float64
     Error         error
@@ -60,77 +60,77 @@ type ResultTransport struct {
     HeaderLength  int64
 }
 
-// Add transport data to result set.
-func (this *ResultSet) Add(result ResultTransport) {
-    this.Took[result.Index] = result.Took
-    this.Code[result.Index] = result.Code
+// Add adds Result data to Results.
+func (res *Results) Add(result Result) {
+    res.Took[result.Index] = result.Took
+    res.Code[result.Index] = result.Code
 
     if result.Error != nil {
-        this.Errors = append(this.Errors, result.Error)
+        res.Errors = append(res.Errors, result.Error)
     }
 
-    if this.TotalLength == 0 {
-        this.TotalLength = result.TotalLength
+    if res.TotalLength == 0 {
+        res.TotalLength = result.TotalLength
     }
 
-    if this.ContentLength == 0 {
-        this.ContentLength = result.ContentLength
+    if res.ContentLength == 0 {
+        res.ContentLength = result.ContentLength
     }
 
-    if this.HeaderLength == 0 {
-        this.HeaderLength = result.HeaderLength
+    if res.HeaderLength == 0 {
+        res.HeaderLength = result.HeaderLength
     }
 }
 
-// Finalize results, generating min, max, avg med and percentiles.
-func (this *ResultSet) Finalize() {
-    this.Replies = len(this.Took)
-    this.min()
-    this.max()
-    this.avg()
-    this.med()
-    this.pct()
+// Finalize finalizes results, generating min, max, avg med and percentiles.
+func (res *Results) Finalize() {
+    res.Replies = len(res.Took)
+    res.min()
+    res.max()
+    res.avg()
+    res.med()
+    res.pct()
 
     // Code counts
-    for _, code := range this.Code {
+    for _, code := range res.Code {
         if code < 100 { // ignore
         } else if code < 200 {
-            this.Code1xx++
+            res.Code1xx++
         } else if code < 300 {
-            this.Code2xx++
+            res.Code2xx++
         } else if code < 400 {
-            this.Code3xx++
+            res.Code3xx++
         } else if code < 500 {
-            this.Code4xx++
+            res.Code4xx++
         } else if code < 600 {
-            this.Code5xx++
+            res.Code5xx++
         }
     }
 
     // Error counts
-    this.ErrorsTotal = len(this.Errors)
+    res.ErrorsTotal = len(res.Errors)
 
-    for _, err := range this.Errors {
+    for _, err := range res.Errors {
         e := err.(*url.Error).Err.(*net.OpError).Error()
         if strings.Contains(e, "connection refused") {
-            this.ErrorsConnRefused++
+            res.ErrorsConnRefused++
         } else if strings.Contains(e, "connection reset") {
-            this.ErrorsConnReset++
+            res.ErrorsConnReset++
         } else if strings.Contains(e, "connection timed out") {
-            this.ErrorsConnTimeout++
+            res.ErrorsConnTimeout++
         } else if strings.Contains(e, "no free file descriptors") {
-            this.ErrorsFdUnavail++
+            res.ErrorsFdUnavail++
         } else if strings.Contains(e, "no such host") {
-            this.ErrorsAddrUnavail++
+            res.ErrorsAddrUnavail++
         } else {
-            this.ErrorsOther++
+            res.ErrorsOther++
         }
     }
 }
 
-// Calculate Percentile from existing Took values.
-func (this *ResultSet) CalculatePct(pct int) float64 {
-    slice := this.copyTook()
+// CalculatePct calculates percentiles from existing Took values.
+func (res *Results) CalculatePct(pct int) float64 {
+    slice := res.copyTook()
 
     l := len(slice)
     switch l {
@@ -149,36 +149,37 @@ func (this *ResultSet) CalculatePct(pct int) float64 {
 /**
  * Private Methods
  ******************************************/
-func (this *ResultSet) min() {
-    slice := this.copyTook()
+
+func (res *Results) min() {
+    slice := res.copyTook()
 
     if !sort.Float64sAreSorted(slice) {
         sort.Float64s(slice)
     }
-    this.TookMin = slice[0]
+    res.TookMin = slice[0]
 }
 
-func (this *ResultSet) max() {
-    slice := this.copyTook()
+func (res *Results) max() {
+    slice := res.copyTook()
 
     if !sort.Float64sAreSorted(slice) {
         sort.Float64s(slice)
     }
-    this.TookMax = slice[len(slice)-1]
+    res.TookMax = slice[len(slice)-1]
 }
 
-func (this *ResultSet) avg() {
-    slice := this.copyTook()
+func (res *Results) avg() {
+    slice := res.copyTook()
 
     var total float64
     for _, n := range slice {
         total += n
     }
-    this.TookAvg = total / float64(len(slice))
+    res.TookAvg = total / float64(len(slice))
 }
 
-func (this *ResultSet) med() {
-    slice := this.copyTook()
+func (res *Results) med() {
+    slice := res.copyTook()
     if !sort.Float64sAreSorted(slice) {
         sort.Float64s(slice)
     }
@@ -186,32 +187,32 @@ func (this *ResultSet) med() {
     l := len(slice)
     switch l {
     case 0:
-        this.TookMed = float64(0)
+        res.TookMed = float64(0)
     case 1:
-        this.TookMed = slice[0]
+        res.TookMed = slice[0]
     case 2:
-        this.TookMed = slice[1]
+        res.TookMed = slice[1]
     default:
         if math.Mod(float64(l), 2) == 0 {
             index := int(math.Floor(float64(l)/2) - 1)
             lower := slice[index]
             upper := slice[index+1]
-            this.TookMed = (lower + upper) / 2
+            res.TookMed = (lower + upper) / 2
         } else {
-            this.TookMed = slice[l/2]
+            res.TookMed = slice[l/2]
         }
     }
 }
 
-func (this *ResultSet) pct() {
-    this.Took85th = this.CalculatePct(85)
-    this.Took90th = this.CalculatePct(90)
-    this.Took95th = this.CalculatePct(95)
-    this.Took99th = this.CalculatePct(99)
+func (res *Results) pct() {
+    res.Took85th = res.CalculatePct(85)
+    res.Took90th = res.CalculatePct(90)
+    res.Took95th = res.CalculatePct(95)
+    res.Took99th = res.CalculatePct(99)
 }
 
-func (this *ResultSet) copyTook() []float64 {
-    slice := make([]float64, len(this.Took))
-    copy(slice, this.Took)
+func (res *Results) copyTook() []float64 {
+    slice := make([]float64, len(res.Took))
+    copy(slice, res.Took)
     return slice
 }
