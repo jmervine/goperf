@@ -5,15 +5,16 @@ import (
     "testing"
     "time"
     "net/http"
-    . "github.com/jmervine/GoT"
+    "github.com/jmervine/GoT"
 )
 
-var StubServerRunning bool = false
+var StubServerRunning = false
+var Go = GoT.Go
 
 func TestNew(T *testing.T) {
-    c := Connector{}.New("http://localhost:9876", 10)
+    c := Connector{}.New("http://localhost:9877", 10)
 
-    Go(T).AssertEqual(c.Path, "http://localhost:9876")
+    Go(T).AssertEqual(c.Path, "http://localhost:9877")
     Go(T).AssertEqual(c.NumConns, 10)
     Go(T).AssertEqual(c.Verbose, false)
     Go(T).AssertEqual(c.Rate, 0)
@@ -23,7 +24,7 @@ func TestNew(T *testing.T) {
 func TestSeries(T *testing.T) {
     go stubServer()
 
-    c := Connector{}.New("http://localhost:9876", 10)
+    c := Connector{}.New("http://localhost:9877", 10)
     c.Series()
 
     for i := 0; i < 10; i++ {
@@ -36,7 +37,7 @@ func TestSeries(T *testing.T) {
 func TestParallel(T *testing.T) {
     go stubServer()
 
-    c := Connector{}.New("http://localhost:9876", 10)
+    c := Connector{}.New("http://localhost:9877", 10)
     c.Parallel()
 
     for i := 0; i < 10; i++ {
@@ -50,7 +51,7 @@ func TestParallel(T *testing.T) {
 func TestRun(T *testing.T) {
     go stubServer()
 
-    c := Connector{}.New("http://localhost:9876", 10)
+    c := Connector{}.New("http://localhost:9877", 10)
     c.Run()
 
     for i := 0; i < 10; i++ {
@@ -80,7 +81,7 @@ func TestRun(T *testing.T) {
 func TestConnect(T *testing.T) {
     go stubServer()
 
-    c := Connector{}.New("http://localhost:9876", 10)
+    c := Connector{}.New("http://localhost:9877", 10)
     r := c.Connect()
 
     for i := 0; i < 10; i++ {
@@ -96,7 +97,7 @@ func TestConnect(T *testing.T) {
 func ExampleConnector_New() {
     go stubServer()
 
-    c := Connector{}.New("http://localhost:9876", 10)
+    c := Connector{}.New("http://localhost:9877", 10)
 
     //
     // Note on Rate:
@@ -127,12 +128,12 @@ func stubServer() {
     StubServerRunning = true
     defer func() { StubServerRunning = false }()
 
-    // Starting a stub server on :9876 to handle incoming requests
+    // Starting a stub server on :9877 to handle incoming requests
     // for example.
     http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
         time.Sleep(5 * time.Millisecond)
         fmt.Fprintln(w, "hello web")
     })
-    http.ListenAndServe(":9876", nil)
+    http.ListenAndServe(":9877", nil)
 }
 

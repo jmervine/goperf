@@ -1,7 +1,7 @@
 package main
 
 import (
-    . "github.com/jmervine/goperf"
+    "github.com/jmervine/goperf"
     "flag"
     "os"
     "fmt"
@@ -36,7 +36,7 @@ func init() {
     flag.Parse()
 
     if version {
-        fmt.Printf("goperf version %v\n", Version)
+        fmt.Printf("goperf version %v\n", perf.Version)
         os.Exit(0)
     }
 
@@ -47,10 +47,11 @@ func init() {
 }
 
 func main() {
-    config := &Configurator{
+    config := &perf.Configurator{
         Path: path, NumConns: conns, Rate: rate, Verbose: verbose,
     }
 
-    results := Start(config)
-    Display(results)
+    results := perf.Start(config)
+    perf.Display(results)
 }
+

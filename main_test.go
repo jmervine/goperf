@@ -10,7 +10,7 @@ import (
     "time"
 )
 
-var StubServerRunning bool = false
+var StubServerRunning = false
 
 func init() {
     Testing = true

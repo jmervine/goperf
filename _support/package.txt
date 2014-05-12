@@ -2,9 +2,7 @@
 
 ---------------------------------------
 
-*/}}{{with .PDoc}}{{if not $.IsMain}}
-# goperf
----
+*/}}{{with .PDoc}}{{if not $.IsMain}}# goperf
 
 Simple HTTPerf clone for performance testing web applications written in Go.
 
@@ -35,7 +33,7 @@ Usage of ./goperf-v0.0.1:
   -version=false: Show version infomration.
 ```
 
-## API Usage
+## [API Documentation](http://godoc.org/github.com/jmervine/goperf)
 
 ```go
 import "github.com/jmervine/goperf"
@@ -128,10 +126,11 @@ import "github.com/jmervine/goperf"
 
 ---------------------------------------
 
-*/}}{{with .Dirs}}
+{{with .Dirs}}
 ## Subdirectories
 {{if $.DirFlat}}{{range .List}}{{if .HasPkg}}
 	{{.Path}}{{end}}{{end}}
 {{else}}{{range .List}}
 	{{repeat `. ` .Depth}}{{.Name}}{{end}}
 {{end}}{{end}}
+*/}}

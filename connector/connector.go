@@ -25,19 +25,19 @@ type Connector struct {
 }
 
 // New generates a new Connector with all the necessaries.
-func (connector Connector) New(path string, numconns int) Connector {
+func (conn Connector) New(path string, numconns int) Connector {
     //connector := Connector{}
-    connector.Path = path
-    connector.NumConns = numconns
-    connector.waiter = &sync.WaitGroup{}
-    connector.tranny = make(chan results.Result)
+    conn.Path = path
+    conn.NumConns = numconns
+    conn.waiter = &sync.WaitGroup{}
+    conn.tranny = make(chan results.Result)
 
-    connector.Results = &results.Results{
+    conn.Results = &results.Results{
         Took: make([]float64, numconns),
         Code: make([]int, numconns),
     }
 
-    return connector
+    return conn
 }
 
 // Run runs the Connector, selecting Parallel or Series based on Rate.

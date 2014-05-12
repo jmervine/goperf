@@ -1,9 +1,9 @@
-package perf
-
-// Simple HTTPerf clone for performance testing web applications written in Go.
+// Package perf is a simple HTTPerf clone for performance testing web applications written in Go.
 //
 // > NOTE: This is the inital commit and shouldn't be considered ready for anyone. That said, it should
 // > work as outlined below, at least on Linux based systems.
+
+package perf
 
 import (
     "fmt"
@@ -11,12 +11,13 @@ import (
     "github.com/jmervine/goperf/results"
 )
 
-// Package version.
-var Version = "v0.0.2"
+// Version is package version.
+var Version = "v0.0.3"
 
-// Flag for disabling certain messaging during test.
-var Testing bool = false
+// Testing is a flag for disabling certain messaging during test.
+var Testing = false
 
+// Configurator is a basic data struct for configuring runs.
 type Configurator struct {
     Rate     int
     NumConns int
@@ -24,7 +25,7 @@ type Configurator struct {
     Verbose  bool
 }
 
-// Quickly Run with limited options.
+// QuickRun limited options.
 func QuickRun(path string, numconns, rate int) *results.Results {
     config := &Configurator{
         Path:     path,
@@ -35,7 +36,7 @@ func QuickRun(path string, numconns, rate int) *results.Results {
     return Start(config)
 }
 
-// Force Parallel run, with limited options.
+// Siege forces Parallel run, with limited options.
 func Siege(path string, numconns int) *results.Results {
     config := &Configurator{
         Path:     path,
@@ -45,28 +46,28 @@ func Siege(path string, numconns int) *results.Results {
     return Parallel(config)
 }
 
-// Setup a new run using a Configurator
+// Start a new run using a Configurator
 func Start(config *Configurator) *results.Results {
     conn := setup(config)
     conn.Run()
     return conn.Results
 }
 
-// Force Parallel run using a Configurator.
+// Parallel forces a parallel run using a Configurator.
 func Parallel(config *Configurator) *results.Results {
     conn := setup(config)
     conn.Parallel()
     return conn.Results
 }
 
-// Force Series run using a Configurator.
+// Series forces a run using a Configurator, running request in series.
 func Series(config *Configurator) *results.Results {
     conn := setup(config)
     conn.Series()
     return conn.Results
 }
 
-// A singled connection, returning a simplified result struct.
+// Connect makes a singled connection, returning a simplified result struct.
 func Connect(path string, verbose bool) *results.Result {
     conn := connector.Connector{}.New(path, 0)
     conn.Verbose = verbose
