@@ -14,11 +14,11 @@ quiet/test: format get lint .PHONY
 
 build: quiet/test .PHONY
 	cd bin; go build -o '../_pkg/goperf-$(VERSION)' -v -a -race
-	@echo "goperf $(VERSION)" > pkg/build-$(VERSION)
-	@echo "" >> pkg/build-$(VERSION)
-	@echo "Built on:" >> pkg/build-$(VERSION)
-	@echo "---------" >> pkg/build-$(VERSION)
-	@echo "$(BUILDBOX)" >> pkg/build-$(VERSION)
+	@echo "goperf $(VERSION)" > _pkg/build-$(VERSION)
+	@echo "" >> _pkg/build-$(VERSION)
+	@echo "Built on:" >> _pkg/build-$(VERSION)
+	@echo "---------" >> _pkg/build-$(VERSION)
+	@echo "$(BUILDBOX)" >> _pkg/build-$(VERSION)
 
 
 get:
