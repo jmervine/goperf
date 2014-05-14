@@ -4,7 +4,6 @@ install:
   - go get github.com/jmervine/GoT
 
 go:
-  - 1.0
   - 1.1
   - 1.2
   - tip

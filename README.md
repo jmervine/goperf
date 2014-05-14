@@ -5,6 +5,8 @@ Simple HTTPerf clone for performance testing web applications written in Go.
 > NOTE: This is the inital commit and shouldn't be considered ready for anyone. That said, it should
 > work as outlined below, at least on Linux based systems.
 
+#### Supports: Go 1.1+
+
 ## Install
 
 ```
