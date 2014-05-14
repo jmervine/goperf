@@ -34,6 +34,22 @@ Usage of ./goperf-v0.0.1:
 ```go
 import "github.com/jmervine/goperf"
 ```
+Package perf is a simple HTTPerf clone for performance testing web applications
+written in Go.
+
+This is designed to be run as a command line too, however, can be hooked in to
+as an API as well.
+
+CLI Usage:
+
+    $ ./goperf-v0.0.1 -help
+    Usage of ./goperf-v0.0.1:
+      -n=0: Total number of connections.
+      -r=0: Connection rate (per second).
+      -u="": Target URL.
+      -v=false: Print verbose messaging.
+      -version=false: Show version infomration.
+
 ##### Example:
 	// Start()
 	config := &Configurator{

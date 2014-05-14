@@ -37,8 +37,9 @@ Usage of ./goperf-v0.0.1:
 
 ```go
 import "github.com/jmervine/goperf"
-```{{else}}
-{{end}}{{comment_text .Doc "> " ""}}
+```
+{{else}}
+{{end}}{{comment_text .Doc "" "    "}}
 {{example_text $ "" "##### "}}{{/*
 
 ---------------------------------------

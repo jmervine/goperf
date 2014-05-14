@@ -10,10 +10,11 @@ import (
 
 // Results is a container for the performance test results.
 type Results struct {
-    Requested  int
-    Replies    int
-    TotalTime  float64
-    ConnPerSec float64
+    Requested   int
+    Replies     int
+    ConnectTime float64
+    TotalTime   float64
+    ConnPerSec  float64
 
     Took     []float64
     TookMin  float64

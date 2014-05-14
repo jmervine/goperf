@@ -18,6 +18,7 @@ func TestNew(T *testing.T) {
     Go(T).AssertEqual(c.NumConns, 10)
     Go(T).AssertEqual(c.Verbose, false)
     Go(T).AssertEqual(c.Rate, 0)
+    Go(T).AssertEqual(c.Results.ConnectTime, -1)
     Go(T).AssertLength(c.Results.Took, 10)
 }
 
@@ -31,7 +32,7 @@ func TestSeries(T *testing.T) {
         Go(T).RefuteEqual(c.Results.Took[i], 0)
         Go(T).AssertEqual(c.Results.Code[i], 200)
     }
-
+    Go(T).RefuteEqual(c.Results.ConnectTime, -1)
 }
 
 func TestParallel(T *testing.T) {
@@ -44,8 +45,8 @@ func TestParallel(T *testing.T) {
         Go(T).RefuteEqual(c.Results.Took[i], 0)
         Go(T).AssertEqual(c.Results.Code[i], 200)
     }
+    Go(T).RefuteEqual(c.Results.ConnectTime, -1)
     Go(T).RefuteEqual(c.Results.TookMed, 0)
-
 }
 
 func TestRun(T *testing.T) {
@@ -58,6 +59,7 @@ func TestRun(T *testing.T) {
         Go(T).RefuteEqual(c.Results.Took[i], 0)
         Go(T).AssertEqual(c.Results.Code[i], 200)
     }
+    Go(T).RefuteEqual(c.Results.ConnectTime, -1)
     Go(T).RefuteEqual(c.Results.TookMed, 0)
 
     c.Rate = -1
@@ -67,6 +69,7 @@ func TestRun(T *testing.T) {
         Go(T).RefuteEqual(c.Results.Took[i], 0)
         Go(T).AssertEqual(c.Results.Code[i], 200)
     }
+    Go(T).RefuteEqual(c.Results.ConnectTime, -1)
     Go(T).RefuteEqual(c.Results.TookMed, 0)
 
     c.Rate = 5
@@ -76,6 +79,7 @@ func TestRun(T *testing.T) {
         Go(T).RefuteEqual(c.Results.Took[i], 0)
         Go(T).AssertEqual(c.Results.Code[i], 200)
     }
+    Go(T).RefuteEqual(c.Results.ConnectTime, -1)
 }
 
 func TestConnect(T *testing.T) {
@@ -88,6 +92,7 @@ func TestConnect(T *testing.T) {
         Go(T).RefuteEqual(r.Took, 0)
         Go(T).AssertEqual(r.Code, 200)
     }
+    Go(T).RefuteEqual(c.Results.ConnectTime, -1)
 }
 
 /***

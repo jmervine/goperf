@@ -6,7 +6,6 @@ import (
     "net/http"
     "net/http/httputil"
     "net/url"
-    "strconv"
     "sync"
     "time"
     "github.com/jmervine/goperf/results"
@@ -26,8 +25,17 @@ type Connector struct {
 
 // New generates a new Connector with all the necessaries.
 func (conn Connector) New(path string, numconns int) Connector {
-    //connector := Connector{}
-    conn.Path = path
+    uri, err := url.Parse(path)
+
+    if uri.Scheme == "" {
+        uri.Scheme = "http"
+    }
+
+    if err != nil {
+        panic(err)
+    }
+
+    conn.Path = uri.String()
     conn.NumConns = numconns
     conn.waiter = &sync.WaitGroup{}
     conn.tranny = make(chan results.Result)
@@ -35,6 +43,9 @@ func (conn Connector) New(path string, numconns int) Connector {
     conn.Results = &results.Results{
         Took: make([]float64, numconns),
         Code: make([]int, numconns),
+
+        // set to -1 so that it gets the first connection time
+        ConnectTime: -1,
     }
 
     return conn
@@ -89,8 +100,28 @@ func (conn *Connector) Parallel() {
     conn.waiter.Wait()
 }
 
+func (conn *Connector) customDial(network, addr string) (net.Conn, error) {
+    start := time.Now()
+    c, err := net.Dial(network, addr)
+
+    if conn.Results.ConnectTime == -1 {
+        conn.Results.ConnectTime = float64(time.Since(start) / time.Millisecond)
+    }
+
+    return c, err
+}
+
 // Connect makes a single connection.
 func (conn *Connector) Connect() results.Result {
+
+    transport := http.Transport{
+        Dial: conn.customDial,
+    }
+
+    http.DefaultClient = &http.Client{
+        Transport: &transport,
+    }
+
     start := time.Now()
     resp, err := http.Get(conn.Path)
     took := float64(time.Since(start) / time.Millisecond)
@@ -113,7 +144,7 @@ func (conn *Connector) Connect() results.Result {
             fmt.Printf(" > Responded with error: %q\n",
                 err.(*url.Error).Err.(*net.OpError).Error())
         } else {
-            fmt.Printf(" > Responded in %4v ms, with code: %d\n", trimFloat(took, 2), code)
+            fmt.Printf(" > Responded in %6.2f ms, with code: %d\n", took, code)
         }
     }
 
@@ -143,17 +174,10 @@ func (conn *Connector) finalize(start time.Time) {
 
     // Some results data can only be populated if run via Connector.
     conn.Results.Requested = conn.NumConns
-    conn.Results.TotalTime = trimFloat(float64(time.Since(start))/float64(time.Second), 3)
-    conn.Results.ConnPerSec = trimFloat(float64(conn.NumConns)/conn.Results.TotalTime, 3)
+    conn.Results.TotalTime = float64(time.Since(start))/float64(time.Second)
+    conn.Results.ConnPerSec = float64(conn.NumConns)/conn.Results.TotalTime
 
     // Finalize results.
     conn.Results.Finalize()
 }
 
-func trimFloat(float float64, points int) float64 {
-    ff, err := strconv.ParseFloat(strconv.FormatFloat(float, byte('f'), points, 64), 64)
-    if err != nil {
-        panic(err)
-    }
-    return ff
-}

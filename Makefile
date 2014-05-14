@@ -6,13 +6,10 @@ travis: get .PHONY
 	# Run Test Suite
 	go test -test.v=true . ./results ./connector
 
-test: format lint travis .PHONY
-
-quiet/test: format get lint .PHONY
-	# Run Test Suite
+test: format lint .PHONY
 	go test . ./results ./connector
 
-build: quiet/test .PHONY
+build: test .PHONY
 	cd bin; go build -o '../_pkg/goperf-$(VERSION)' -v -a -race
 	@echo "goperf $(VERSION)" > _pkg/build-$(VERSION)
 	@echo "" >> _pkg/build-$(VERSION)
@@ -29,7 +26,7 @@ docs: format .PHONY
 	@godoc -ex=true | sed -e 's/func /\nfunc /g' | less
 	@#                                         ^ add a little spacing for readability
 
-readme: quiet/test
+readme: test
 	# generating readme
 	godoc -ex -v -templates "$(PWD)/_support" . > README.md
 

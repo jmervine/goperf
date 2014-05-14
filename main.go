@@ -1,8 +1,19 @@
-// Package perf is a simple HTTPerf clone for performance testing web applications written in Go.
-//
-// > NOTE: This is the inital commit and shouldn't be considered ready for anyone. That said, it should
-// > work as outlined below, at least on Linux based systems.
+/*
+Package perf is a simple HTTPerf clone for performance testing web applications written in Go.
 
+This is designed to be run as a command line too, however, can be hooked in to as an API as well.
+
+CLI Usage:
+
+    $ ./goperf-v0.0.1 -help
+    Usage of ./goperf-v0.0.1:
+      -n=0: Total number of connections.
+      -r=0: Connection rate (per second).
+      -u="": Target URL.
+      -v=false: Print verbose messaging.
+      -version=false: Show version infomration.
+
+*/
 package perf
 
 import (
@@ -78,20 +89,21 @@ func Connect(path string, verbose bool) *results.Result {
 
 // Display formatted results.
 func Display(r *results.Results) {
-    fmt.Printf("Total: requested %d replies %d test-duration %vs\n",
+    fmt.Printf("Total: requested %d replies %d test-duration %6.2fs\n",
         r.Requested, len(r.Took), r.TotalTime)
     fmt.Println()
 
-    fmt.Printf("Connection rate: %v conn/s\n", r.ConnPerSec)
-    fmt.Printf("Connection time [ms]: min %v avg %v max %v med %v\n",
+    fmt.Printf("Connection rate: %6.2f conn/s\n", r.ConnPerSec)
+    fmt.Printf("Connection time [ms]: min %6.2f avg %6.2f max %6.2f med %6.2f\n",
         r.TookMin, r.TookAvg, r.TookMax, r.TookMed)
-    fmt.Printf("Connection time [ms]: 85th %v 90th %v 95th %v 99th %v\n",
+    fmt.Printf("Connection time [ms]: 85th %6.2f 90th %6.2f 95th %6.2f 99th %6.2f\n",
         r.Took85th, r.Took90th, r.Took95th, r.Took99th)
+    fmt.Printf("Connection time [ms]: connect %6.2f\n", r.ConnectTime)
     fmt.Println()
 
     fmt.Printf("Reply size [B]: content %v header/footer %v (total %v)\n",
         r.ContentLength, r.HeaderLength, r.TotalLength)
-    fmt.Printf("Reply status: 1xx=%v 2xx=%v 3xx=%v 4xx=%v 5xx=%v\n",
+    fmt.Printf("Reply status: 1xx=%d 2xx=%d 3xx=%d 4xx=%d 5xx=%d\n",
         r.Code1xx, r.Code2xx, r.Code3xx, r.Code4xx, r.Code5xx)
     fmt.Println()
 
