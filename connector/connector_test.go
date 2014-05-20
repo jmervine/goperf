@@ -72,7 +72,7 @@ func TestRun(T *testing.T) {
     Go(T).RefuteEqual(c.Results.ConnectTime, -1)
     Go(T).RefuteEqual(c.Results.TookMed, 0)
 
-    c.Rate = 5
+    c.Rate = 5.5
     c.Run()
 
     for i := 0; i < 10; i++ {
@@ -114,7 +114,7 @@ func ExampleConnector_New() {
     //
     // Both c.Series() and c.Parallel() can also be called in place of Run().
     //
-    c.Rate = 4 // QPS
+    c.Rate = 4.0 // QPS
     c.Run()
 
     for i, code := range c.Results.Code {

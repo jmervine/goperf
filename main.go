@@ -23,21 +23,21 @@ import (
 )
 
 // Version is package version.
-var Version = "v0.0.3"
+var Version = "v0.0.4"
 
 // Testing is a flag for disabling certain messaging during test.
 var Testing = false
 
 // Configurator is a basic data struct for configuring runs.
 type Configurator struct {
-    Rate     int
+    Rate     float64
     NumConns int
     Path     string
     Verbose  bool
 }
 
 // QuickRun limited options.
-func QuickRun(path string, numconns, rate int) *results.Results {
+func QuickRun(path string, numconns int, rate float64) *results.Results {
     config := &Configurator{
         Path:     path,
         NumConns: numconns,

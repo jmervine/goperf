@@ -18,7 +18,7 @@ type Connector struct {
 
     Path     string
     NumConns int
-    Rate     int
+    Rate     float64
     Verbose  bool
     Results  *results.Results
 }
@@ -82,7 +82,7 @@ func (conn *Connector) Parallel() {
     for i := 0; i < conn.NumConns; i++ {
 
         if conn.Rate > 0 && i != 0 {
-            time.Sleep(time.Second / time.Duration(conn.Rate))
+            time.Sleep(time.Duration((1 / conn.Rate) * float64(time.Second)))
         }
 
         conn.waiter.Add(1)

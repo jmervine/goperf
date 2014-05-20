@@ -60,10 +60,10 @@ CLI Usage:
 	    Rate:     10,
 	    Verbose:  true,
 	}
-	
+
 	results := Start(config)
 	Display(results)
-	
+
 	// QuickRun()
 	quick := QuickRun("http://localhost", 100, 10)
 	Display(quick)
@@ -77,7 +77,7 @@ var Testing = false
 > Testing is a flag for disabling certain messaging during test.
 
 ```go
-var Version = "v0.0.3"
+var Version = "v0.0.4"
 ```
 
 > Version is package version.
@@ -89,7 +89,7 @@ var Version = "v0.0.3"
 
 ```go
 type Configurator struct {
-    Rate     int
+    Rate     float64
     NumConns int
     Path     string
     Verbose  bool
@@ -108,10 +108,10 @@ func Connect(path string, verbose bool) *results.Result
 
 ##### Example:
 	go stubServer()
-	
+
 	results := Connect("http://localhost:9876", false)
 	fmt.Printf("Status Code: %v\n", results.Code)
-	
+
 	// Output:
 	// Status Code: 200
 
@@ -137,14 +137,14 @@ func Parallel(config *Configurator) *results.Results
 	    Rate:     10,
 	    Verbose:  true,
 	}
-	
+
 	results := Parallel(config)
 	Display(results)
 
 #### QuickRun
 
 ```go
-func QuickRun(path string, numconns, rate int) *results.Results
+func QuickRun(path string, numconns int, rate float64) *results.Results
 ```
 > QuickRun limited options.
 
@@ -163,7 +163,7 @@ func Series(config *Configurator) *results.Results
 	    Rate:     10,
 	    Verbose:  true,
 	}
-	
+
 	results := Parallel(config)
 	Display(results)
 

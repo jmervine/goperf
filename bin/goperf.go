@@ -9,7 +9,8 @@ import (
 
 var (
     path string
-    conns, rate int
+    conns int
+    rate float64
     verbose bool
     version bool
 )
@@ -24,8 +25,7 @@ func init() {
     flag.IntVar(&conns , "n"         , 0 , "Total number of connections.")
 
     // config.Rate
-    //flag.IntVar(&rate , "rate" , 0 , "rate")
-    flag.IntVar(&rate , "r"    , 0 , "Connection rate (per second).")
+    flag.Float64Var(&rate , "r"    , 0 , "Connection rate (per second).")
 
     // config.Verbose
     //flag.BoolVar(&verbose , "verbose" , false , "verbose")
